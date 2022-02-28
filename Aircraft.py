@@ -163,7 +163,7 @@ class Aircraft:
         self.rssi = rssi
     
     def __str__(self):
-        return f"{str(self.hex)} \t {str(self.r): >6} \t {str(self.now)} \t {str(self.t)} \t {str(self.squawk):0>4} \t Loc({str(self.lat)}, {str(self.lon)})"
+        return f"{str(self.hex)} \t {str(self.r): >6} \t {str(self.flight): >6} \t {str(self.now)} \t {str(self.t)} \t {str(self.squawk):0>4} \t Loc({str(self.lat)}, {str(self.lon)})"
 
     @staticmethod
     def from_dict(obj: Any) -> 'Aircraft':
@@ -268,6 +268,7 @@ class Aircraft:
         result["gva"] = from_int(self.gva)
         result["sda"] = from_int(self.sda)
         result["alert"] = from_int(self.alert)
+        result["squawk"] = from_int(self.squawk)
         result["spi"] = from_int(self.spi)
         result["mlat"] = from_list(lambda x: x, self.mlat)
         result["tisb"] = from_list(lambda x: x, self.tisb)
