@@ -14,40 +14,36 @@ T = TypeVar("T")
 
 
 def from_int(x: Any) -> int:
-#    assert isinstance(x, int) and not isinstance(x, bool)
-    return x
+    if (isinstance(x, int)):
+        return x
+    return None
 
 
 def from_str(x: Any) -> str:
-#    assert isinstance(x, str)
     if (isinstance(x, str)):
         return x
     return None
 
 
 def from_bool(x: Any) -> bool:
-#    assert isinstance(x, bool)
     if (isinstance(x, bool)):
         return x
     return None
 
 
 def from_float(x: Any) -> float:
-#    assert isinstance(x, (float, int)) and not isinstance(x, bool)
     if (isinstance(x, (float,int) )):
         return float(x)
     return None
 
 
 def from_list(f: Callable[[Any], T], x: Any) -> List[T]:
-#    assert isinstance(x, list)
     if (isinstance(x, list)):
         return [f(y) for y in x]
     return None
 
 
 def to_float(x: Any) -> float:
-#    assert isinstance(x, float)
     if (isinstance(x, float)):
         return x
     return None
