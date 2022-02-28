@@ -4,12 +4,15 @@ import os
 import datetime
 import sqlite3
 import Aircraft
+from DdHelper import db_helper
+
 
 
 TARHOST = os.environ.get("TARHOST","127.0.0.1")
 TARPORT = int(os.environ.get("TARPORT",30047))
-TIMEOUT = 1
+TIMEOUT = 3600
 seen = {}
+db:db_helper = None
 
 """
 Setup DB Connection
@@ -25,9 +28,7 @@ def logAircraft(msg):
     try:
         A = Aircraft.aircraft_from_dict(msg)
         print(A)
-        if(not A.isSeenBefore()):
-            print("NEW AIRCRAFT!")
-
+        return A
     except Exception as e:
         print(e)
     pass
@@ -47,6 +48,7 @@ def UpdateAircraft(msg):
 
 
 def main():
+    db = db_helper("BaseStation.sqb")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect((TARHOST, TARPORT))
         f = s.makefile(mode="r",buffering=2048,encoding='ascii')
@@ -57,12 +59,13 @@ def main():
                     s.connect((TARHOST, TARPORT))
                 
                 msg = json.loads(line)
-                
                 #not seen yet? add it to see, and parse it.
                 if (msg.get("hex")) not in seen:
                     seen[msg.get("hex")] = datetime.datetime.now()
                     logAircraft(msg)
-
+                    A = db.getAircraft(msg.get("hex"))
+                    db.upsertAircraft(logAircraft(msg))
+                    print(A)
                 #cleanup aircraft not seen in the TIMEOUT period, no need to keep them in memory.
                 for k,v in list(seen.items()):
                     if v <= datetime.datetime.now() - datetime.timedelta(minutes=TIMEOUT):
@@ -70,7 +73,7 @@ def main():
                          #print(k, x)
             except Exception as e:
                 print(e)
-                print("----------------------")
+                #print("----------------------")
                 continue
 
 
