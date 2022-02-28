@@ -8,6 +8,7 @@ import Aircraft
 
 TARHOST = os.environ.get("TARHOST","127.0.0.1")
 TARPORT = int(os.environ.get("TARPORT",30047))
+TIMEOUT = 1
 seen = {}
 
 """
@@ -24,9 +25,11 @@ def logAircraft(msg):
     try:
         A = Aircraft.aircraft_from_dict(msg)
         print(A)
-        #print(json.dumps(Aircraft.aircraft_to_dict(A), default=str, indent=2))
+        if(not A.isSeenBefore()):
+            print("NEW AIRCRAFT!")
+
     except Exception as e:
-        print(e.with_traceback(None))
+        print(e)
     pass
 
 """
@@ -50,17 +53,21 @@ def main():
         while True:
             try:
                 line = f.readline()
-                if len(line)==0:
+                if len(line)==0: #disconnect? reconnect!
                     s.connect((TARHOST, TARPORT))
                 
                 msg = json.loads(line)
                 
+                #not seen yet? add it to see, and parse it.
                 if (msg.get("hex")) not in seen:
                     seen[msg.get("hex")] = datetime.datetime.now()
                     logAircraft(msg)
-                    #print(json.dumps(msg, default=str))
 
-                #print(len(seen))
+                #cleanup aircraft not seen in the TIMEOUT period, no need to keep them in memory.
+                for k,v in list(seen.items()):
+                    if v <= datetime.datetime.now() - datetime.timedelta(minutes=TIMEOUT):
+                         x=seen.pop(k)
+                         #print(k, x)
             except Exception as e:
                 print(e)
                 print("----------------------")

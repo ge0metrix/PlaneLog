@@ -162,8 +162,12 @@ class Aircraft:
         self.seen = seen
         self.rssi = rssi
     
-    def __str__(self):
+    def __str__(self)->str:
         return f"{str(self.hex)} \t {str(self.r): >6} \t {str(self.flight): >6} \t {str(self.now)} \t {str(self.t)} \t {str(self.squawk):0>4} \t Loc({str(self.lat)}, {str(self.lon)})"
+
+    def isSeenBefore(self)->bool:
+        return False
+
 
     @staticmethod
     def from_dict(obj: Any) -> 'Aircraft':
