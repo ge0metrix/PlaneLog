@@ -3,8 +3,7 @@ import json
 import os
 import datetime
 import sqlite3
-import traceback
-from Aircraft import Aircraft, aircraft_from_dict
+import Aircraft
 
 
 TARHOST = os.environ.get("TARHOST","127.0.0.1")
@@ -23,8 +22,9 @@ Cast msg to Aircraft and call ToDb()
 """
 def logAircraft(msg):
     try:
-        A = aircraft_from_dict(msg)
+        A = Aircraft.aircraft_from_dict(msg)
         print(A)
+        #print(json.dumps(Aircraft.aircraft_to_dict(A), default=str, indent=2))
     except Exception as e:
         print(e.with_traceback(None))
     pass
