@@ -49,3 +49,19 @@ class db_helper():
             data = (aircraft.now, aircraft.r, aircraft.hex, aircraft.flight)
             cur.execute(query, data)
             self.conn.commit()
+
+"""
+CREATE TABLE PlaneLog (
+    ICAO         STRING (6)   NOT NULL,
+    FirstSeen    DATETIME,
+    LastSeen     DATETIME,
+    Registration VARCHAR (20),
+    TypeCode     VARCHAR (10),
+    Flight       VARCHAR (20),
+    PRIMARY KEY (
+        ICAO,
+        Flight
+    )
+);
+
+"""
