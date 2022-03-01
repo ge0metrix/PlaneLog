@@ -10,7 +10,7 @@ from DdHelper import db_helper
 
 TARHOST = os.environ.get("TARHOST","127.0.0.1")
 TARPORT = int(os.environ.get("TARPORT",30047))
-TIMEOUT = 3600
+TIMEOUT = 1
 seen = {}
 db:db_helper = None
 
@@ -27,7 +27,7 @@ Cast msg to Aircraft and call ToDb()
 def logAircraft(msg):
     try:
         A = Aircraft.aircraft_from_dict(msg)
-        print(A)
+        #print(A)
         return A
     except Exception as e:
         print(e)
@@ -62,10 +62,10 @@ def main():
                 #not seen yet? add it to see, and parse it.
                 if (msg.get("hex")) not in seen:
                     seen[msg.get("hex")] = datetime.datetime.now()
-                    logAircraft(msg)
-                    A = db.getAircraft(msg.get("hex"))
+                    #logAircraft(msg)
+                    #A = db.getAircraft(msg.get("hex"))
                     db.upsertAircraft(logAircraft(msg))
-                    print(A)
+                    #print(A)
                 #cleanup aircraft not seen in the TIMEOUT period, no need to keep them in memory.
                 for k,v in list(seen.items()):
                     if v <= datetime.datetime.now() - datetime.timedelta(minutes=TIMEOUT):

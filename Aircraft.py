@@ -9,6 +9,7 @@
 import datetime
 import json
 from typing import List, Any, TypeVar, Callable, Type, cast
+import dateutil.parser
 
 
 T = TypeVar("T")
@@ -100,7 +101,11 @@ class Aircraft:
     def from_dict(obj: Any) -> 'Aircraft':
         try:
             assert isinstance(obj, dict)
-            now = datetime.datetime.fromtimestamp(from_float(obj.get("now")))
+            if(from_float(obj.get("now"))):
+                now = datetime.datetime.fromtimestamp(from_float(obj.get("now")))
+            elif(obj.get("now")):
+                dateparser = dateutil.parser.parser()
+                now = dateparser.parse(obj.get("now"))
             hex = from_str(obj.get("hex"))
             type = from_str(obj.get("type"))
             flight = from_str(obj.get("flight"))

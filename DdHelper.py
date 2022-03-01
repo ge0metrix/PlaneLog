@@ -10,38 +10,42 @@ class db_helper():
         except sqlite3.Error as sqlErr:
             print(sqlErr)
 
-    def getAircraft(self, icao:str) -> Aircraft:
+    def getAircraft(self, aircraft:Aircraft.Aircraft) -> Aircraft.Aircraft:
         #query = "SELECT ModeS, LastModified, Registration, ICAOTypeCode, Type FROM Aircraft WHERE ModeS = ?"
         if(not self.conn):
             print("YIKES!")
             return
-        query:str = "SELECT * FROM PlaneLog WHERE ICAO=:hex;"
+        query:str = "SELECT * FROM PlaneLog WHERE ICAO=:hex and Flight=:flight;"
         cur = self.conn.cursor()
-        print(query)
-        queryparams = {'hex':str(icao.lower())}
+        #print(query)
+        queryparams = {'hex':str(aircraft.hex.lower()), "flight":aircraft.flight}
         try:
             cur.execute(query, queryparams)
         except Error as e:
             print(e)
             pass
-        print(cur.rowcount)
-        if cur.rowcount > 0:
-            row = cur.fetchone()
+
+        row = cur.fetchone()
+        if row:
+            #print(row)
             x = {"hex":row[0], "now":row[1], "r":row[2], "t":row[3]}
+            #print(x)   
             A = Aircraft.aircraft_from_dict(x)
             return A
         return None
 
     def upsertAircraft(self, aircraft:Aircraft.Aircraft):
-        if(self.getAircraft(aircraft.hex) == None):
-            query = "INSERT INTO PlaneLog (ICAO, FirstSeen, LastSeen, Registration, TypeCode) VALUES (?, ?, ?, ?, ?)"
+        if(self.getAircraft(aircraft) == None):
+            print("INSERTING:\t{}".format(aircraft))
+            query = "INSERT INTO PlaneLog (ICAO, FirstSeen, LastSeen, Registration, TypeCode, Flight) VALUES (?, ?, ?, ?, ?, ?)"
             cur =self.conn.cursor()
-            data = (aircraft.hex, aircraft.now, aircraft.now, aircraft.r, aircraft.t)
+            data = (aircraft.hex, aircraft.now, aircraft.now, aircraft.r, aircraft.t, aircraft.flight)
             cur.execute(query, data)
             self.conn.commit()
         else:
-            query = "UPDATE PlaneLog SET LastSeen = ?, Registration = ? WHERE ICAO = ?"
+            print("UPDATING:\t{}".format(aircraft))
+            query = "UPDATE PlaneLog SET LastSeen = ?, Registration = ? WHERE ICAO = ? and Flight = ?"
             cur = self.conn.cursor()
-            data = (aircraft.now, aircraft.r, aircraft.hex)
+            data = (aircraft.now, aircraft.r, aircraft.hex, aircraft.flight)
             cur.execute(query, data)
             self.conn.commit()
