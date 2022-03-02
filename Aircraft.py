@@ -57,10 +57,10 @@ def to_class(c: Type[T], x: Any) -> dict:
 
 class Airline:
     icaocode: str
-    itacode: str
+    iatacode: str
     name: str
     country: str
-
+    callsign: str
 
 class Aircraft:
     now: datetime.datetime
