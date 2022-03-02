@@ -55,6 +55,12 @@ def to_class(c: Type[T], x: Any) -> dict:
     assert isinstance(x, c)
     return cast(Any, x).to_dict()
 
+class Airline:
+    icaocode: str
+    itacode: str
+    name: str
+    country: str
+
 
 class Aircraft:
     now: datetime.datetime
@@ -118,7 +124,7 @@ class Aircraft:
             lat = from_float(obj.get("lat"))
             lon = from_float(obj.get("lon"))
             alert = from_int(obj.get("alert"))
-            squawk = from_int(obj.get("squawk"))
+            squawk = obj.get("squawk")
         except Exception as e:
             print(e)
         return Aircraft(now, hex, type, flight, r, t, alt_baro, ground, emergency, category, lat, lon, alert, squawk)
