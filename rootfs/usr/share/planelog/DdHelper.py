@@ -77,7 +77,7 @@ class db_helper():
                 self.conn.commit()
                 cur.close()
                 r = requests.get("https://raw.githubusercontent.com/kx1t/planefence-airlinecodes/main/airlinecodes.txt")
-                print(r.text)
+                #print(r.text)
                 rdr = csv.reader(r.text.splitlines())
                 for r in rdr:
                     #print(r)
@@ -119,7 +119,7 @@ class db_helper():
         #Check if we've seen the aircraft before
         A = self.getAircraft(aircraft)
         if(not A):
-            print("INSERTING:\t{}".format(aircraft))
+            print("[{}]\tINSERTING:\t{}".format(datetime.datetime.now(), aircraft))
             query = "INSERT INTO PlaneLog (ICAO, FirstSeen, LastSeen, Registration, TypeCode, Flight, Squawk) VALUES (?, ?, ?, ?, ?, ?,?)"
             cur =self.conn.cursor()
             data = (aircraft.hex, aircraft.now, aircraft.now, aircraft.r, aircraft.t, aircraft.flight, aircraft.squawk)
@@ -127,7 +127,7 @@ class db_helper():
             self.conn.commit()
         else:
             #print("{} < {}".format(A.now, (datetime.datetime.now() - datetime.timedelta(minutes=1)) ))
-            print("UPDATING:\t{}".format(aircraft))
+            #print("UPDATING:\t{}".format(aircraft))
             query = "UPDATE PlaneLog SET LastSeen = ?, Registration = ?, Squawk = ?, Flight = ? WHERE ICAO = ? "
             cur = self.conn.cursor()
             data = (datetime.datetime.now(), aircraft.r, aircraft.squawk, aircraft.flight, aircraft.hex )

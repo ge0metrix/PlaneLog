@@ -12,7 +12,7 @@ async def lookupAirline(flight):
     pass
 
 async def main():
-    db = DdHelper.db_helper("PlaneLog.db")
+    db = DdHelper.db_helper("/opt/planelog/PlaneLog.db")
     incon = tarConn(TARHOST, TARPORT)
 
     while True:

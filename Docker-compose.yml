@@ -1,0 +1,23 @@
+version: '3.8'
+
+
+services:
+#
+  planelog:
+    image: geoplanelog:dev
+    tty: true
+    container_name: planelog
+    hostname: planelog
+    restart: always
+    environment:
+      - TZ=America/New_York
+      - LOGLEVEL=INFO
+      - TARHOST=10.0.0.229
+      - TARPORT=30047
+    volumes:
+      # adopt this one to point at your home directory if it is not /home/pi
+      - /Users/abrenden/planelog:/opt/planelog
+    tmpfs:
+      - /run:rw,nosuid,nodev,exec,relatime,size=512M
+      - /tmp:rw,nosuid,nodev,noexec,relatime,size=128M
+  #
