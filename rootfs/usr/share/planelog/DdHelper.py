@@ -120,17 +120,19 @@ class db_helper():
         A = self.getAircraft(aircraft)
         if(not A):
             print("[{}]\tINSERTING:\t{}".format(datetime.datetime.now(), aircraft))
-            query = "INSERT INTO PlaneLog (ICAO, FirstSeen, LastSeen, Registration, TypeCode, Flight, Squawk) VALUES (?, ?, ?, ?, ?, ?,?)"
+            query = "INSERT INTO PlaneLog (ICAO, FirstSeen, LastSeen, Registration, TypeCode, Flight, Squawk) VALUES (:icao, :now, :now, :reg, :type, :flight, :squawk)"
             cur =self.conn.cursor()
-            data = (aircraft.hex, aircraft.now, aircraft.now, aircraft.r, aircraft.t, aircraft.flight, aircraft.squawk)
+            #data = (aircraft.hex, aircraft.now, aircraft.now, aircraft.r, aircraft.t, aircraft.flight, aircraft.squawk)
+            data = {"icao":aircraft.hex, "now":aircraft.now, "reg":aircraft.r, "type":aircraft.t, "flight":aircraft.flight, "squawk":aircraft.squawk}
             cur.execute(query, data)
             self.conn.commit()
         else:
             #print("{} < {}".format(A.now, (datetime.datetime.now() - datetime.timedelta(minutes=1)) ))
             #print("UPDATING:\t{}".format(aircraft))
-            query = "UPDATE PlaneLog SET LastSeen = ?, Registration = ?, Squawk = ?, Flight = ? WHERE ICAO = ? "
+            query = "UPDATE PlaneLog SET LastSeen = :now, Registration = :reg, Squawk = :squawk, Flight = :flight WHERE ICAO = :icao "
             cur = self.conn.cursor()
-            data = (datetime.datetime.now(), aircraft.r, aircraft.squawk, aircraft.flight, aircraft.hex )
+            #data = (datetime.datetime.now(), aircraft.r, aircraft.squawk, aircraft.flight, aircraft.hex )
+            data = {"now":datetime.datetime.now(), "reg":aircraft.r, "squawk":aircraft.squawk, "flight":aircraft.flight, "icao":aircraft.hex }
             cur.execute(query, data)
             self.conn.commit()
 
