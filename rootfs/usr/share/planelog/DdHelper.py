@@ -129,7 +129,14 @@ class db_helper():
         else:
             #print("{} < {}".format(A.now, (datetime.datetime.now() - datetime.timedelta(minutes=1)) ))
             #print("UPDATING:\t{}".format(aircraft))
-            query = "UPDATE PlaneLog SET LastSeen = :now, Registration = :reg, Squawk = :squawk, Flight = :flight WHERE ICAO = :icao "
+            query = """
+            UPDATE PlaneLog 
+            SET LastSeen = :now, 
+            Registration = CASE WHEN :reg IS NOT NULL THEN :reg ELSE Registration END, 
+            Squawk = CASE WHEN :squawk IS NOT NULL THEN :squawk ELSE Squawk END, 
+            Flight = CASE WHEN :flight IS NOT NULL THEN :flight ELSE Flight END,  
+            WHERE ICAO = :icao 
+            """
             cur = self.conn.cursor()
             #data = (datetime.datetime.now(), aircraft.r, aircraft.squawk, aircraft.flight, aircraft.hex )
             data = {"now":datetime.datetime.now(), "reg":aircraft.r, "squawk":aircraft.squawk, "flight":aircraft.flight, "icao":aircraft.hex }
