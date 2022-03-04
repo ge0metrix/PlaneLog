@@ -134,7 +134,7 @@ class db_helper():
             SET LastSeen = :now, 
             Registration = CASE WHEN :reg IS NOT NULL THEN :reg ELSE Registration END, 
             Squawk = CASE WHEN :squawk IS NOT NULL THEN :squawk ELSE Squawk END, 
-            Flight = CASE WHEN :flight IS NOT NULL THEN :flight ELSE Flight END,  
+            Flight = CASE WHEN :flight IS NOT NULL THEN :flight ELSE Flight END  
             WHERE ICAO = :icao 
             """
             cur = self.conn.cursor()
