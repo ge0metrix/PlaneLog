@@ -1,0 +1,36 @@
+version: '3.8'
+
+
+services:
+#
+  planelog:
+    image: planelog:dev
+    tty: true
+    container_name: planelog
+    hostname: planelog
+    restart: always
+    environment:
+      - TZ=America/New_York
+      - LOGLEVEL=INFO
+      - TARHOST=10.0.0.229
+      - TARPORT=30047
+    volumes:
+      # adopt this one to point at your home directory if it is not /home/pi
+      - /home/pi/.planelog:/opt/planelog
+    tmpfs:
+      - /run:rw,nosuid,nodev,exec,relatime,size=512M
+      - /tmp:rw,nosuid,nodev,noexec,relatime,size=128M
+  #
+  sqlite-web:
+    image: kx1t/sqlite-web
+    tty: true
+    container_name: acarsdb
+    restart: always
+    ports:
+      - 9080:8080
+    environment:
+      - SQLITE_DATABASE=PlaneLog.db
+      - URL_PREFIX=/planelog
+      - EXTRA_ARGS=-r
+    volumes:
+      - /home/pi/.planelog:/data
