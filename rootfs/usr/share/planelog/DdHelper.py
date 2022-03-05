@@ -11,8 +11,7 @@ from io import StringIO
 
 
 DBInitSQL = """
-DROP TABLE IF EXISTS Airlines;
-CREATE TABLE Airlines (
+CREATE TABLE IF NOT EXISTS Airlines (
     ICAO     VARCHAR (3),
     Name     VARCHAR (50),
     Callsign VARCHAR (50),
@@ -23,8 +22,7 @@ CREATE TABLE Airlines (
     )
 );
 
-DROP TABLE IF EXISTS PlaneLog;
-CREATE TABLE PlaneLog (
+CREATE TABLE IF NOT EXISTS PlaneLog (
     ICAO         STRING (6)   NOT NULL,
     FirstSeen    DATETIME,
     LastSeen     DATETIME,
@@ -37,34 +35,42 @@ CREATE TABLE PlaneLog (
     )
 );
 
-DROP TABLE IF EXISTS FlightLog;
-CREATE TABLE FlightLog (
+CREATE TABLE IF NOT EXISTS FlightLog (
     ICAO VARCHAR(6) NOT NULL,
     FLIGHT VARCHAR(20),
     LogDate DATETIME
 );
 
-DROP TABLE IF EXISTS SquawkLog;
-CREATE TABLE SquawkLog (
+
+CREATE TABLE IF NOT EXISTS SquawkLog (
     ICAO VARCHAR(6) NOT NULL,
     Squawk INT,
     LogDate DATETIME
 );
 
-CREATE TRIGGER logFlights 
+CREATE TRIGGER IF NOT EXISTS logFlights 
 AFTER UPDATE ON PlaneLog 
 WHEN (NEW.Flight <> OLD.Flight AND NEW.Flight IS NOT NULL)
 BEGIN
     INSERT INTO FlightLog (ICAO, Flight, LogDate) VALUES (NEW.ICAO, OLD.Flight, DATETIME('NOW'));
 END;
 
-CREATE TRIGGER logSquawks 
+CREATE TRIGGER IF NOT EXISTS logSquawks 
 AFTER UPDATE ON PlaneLog 
 WHEN (NEW.Squawk <> OLD.Squawk AND NEW.Squawk IS NOT NULL)
 BEGIN
     INSERT INTO SquawkLog (ICAO, Squawk, LogDate) VALUES (NEW.ICAO, OLD.Squawk, DATETIME('NOW'));
 END;
 
+
+CREATE VIEW IF NOT EXISTS vw_PlaneFlights
+AS
+SELECT PL.ICAO, STRFTIME('%d/%m/%Y %H:%M:%S', PL.LastSeen) AS LastSeen, PL.Registration, PL.Flight, PL.TypeCode, PL. Squawk,
+AL.Callsign, AL.Name, AL.Country, FL.PriorFlights
+FROM PlaneLog AS PL
+LEFT OUTER JOIN Airlines AS AL ON AL.ICAO=SUBSTR(PL.Flight,1,3)
+LEFT OUTER JOIN (SELECT ICAO, Group_Concat(Flight,',') AS PriorFlights FROM "FlightLog" GROUP BY ICAO) AS FL ON FL.ICAO=PL.ICAO
+ORDER BY LastSeen DESC
 """
 class db_helper():
     conn: sqlite3.Connection
@@ -81,6 +87,10 @@ class db_helper():
                 rdr = csv.reader(r.text.splitlines())
                 for r in rdr:
                     #print(r)
+                    cur = self.conn.cursor()
+                    query = "DELETE FROM Airlines WHERE 1=1"
+                    cur.execute(query,r)
+                    self.conn.commit()
                     cur = self.conn.cursor()
                     query = "INSERT INTO Airlines (ICAO, Name, Callsign, Country) VALUES (?, ?, ?, ?)"
                     cur.execute(query,r)
